@@ -8,7 +8,7 @@ To arrive at [⟨ortho|normal⟩](https://hilb.ert.space) as December comes.
 
 | Day | Runtime (s) | With `-O2` |
 |-----|-------------|------------|
-| 01  |             |
+| 01  | 0.015       |
 | 02  |             |
 | 03  |             |
 | 04  |             |
