@@ -30,4 +30,4 @@ import qualified Day24
 import qualified Day25
 
 main :: IO ()
-main = Day02.main
+main = Day03.main
