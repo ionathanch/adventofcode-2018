@@ -10,7 +10,7 @@ To arrive at [⟨ortho|normal⟩](https://hilb.ert.space) as December comes.
 |-----|-------------|------------|
 | 01  | < 0.1       |
 | 02  | < 0.1       |
-| 03  |             |
+| 03  | ~ 2         |
 | 04  |             |
 | 05  |             |
 | 06  |             |
