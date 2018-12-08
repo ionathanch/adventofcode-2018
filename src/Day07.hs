@@ -1,9 +1,9 @@
 module Day07 (main) where
 
 import Data.List (partition)
-import Data.Map (Map, fromListWith, fromList, findMin, findMax)
+import Data.Map (Map, fromListWith, fromList, findMin, findMax, (!), adjust, mapWithKey)
 import qualified Data.Map as M (union, null, delete, empty, filter)
-import Data.Set (Set, singleton)
+import Data.Set (Set, singleton, member, toList)
 import qualified Data.Set as S (union, null, delete, empty)
 import Data.Tuple.Extra (second)
 
@@ -22,6 +22,33 @@ dependencies ds =
     let dependents   = fromListWith S.union . map (second singleton) $ ds
         independents = fromList . (flip zip) (repeat S.empty) . snd . unzip $ ds
     in M.union dependents independents
+
+findRoot :: Deps -> Char
+findRoot deps =
+    let startChar = findMinKeyBy S.null deps
+    in  crawl startChar
+    where
+        findMinKeyBy f = fst . findMin . M.filter f
+        crawl c
+            | M.null . M.filter (member c) $ deps = c
+            | otherwise = crawl (findMinKeyBy (member c) deps)
+
+transReduc :: Deps -> Deps
+transReduc deps =
+    let root = findRoot deps
+    in  reducChildren root deps
+    where
+        reducChildren :: Char -> Deps -> Deps
+        reducChildren node d =
+            let cartProdChildren = [(t, f) | t <- toList (d ! node), f <- toList (d ! node)]
+                d' = foldr (\(to, from) -> adjust (S.delete to) node) d . filter (uncurry $ pathToFrom d) $ cartProdChildren -- (flip adjust node . S.delete . fst) if you really wanted to
+            in  foldr reducChildren d' (d' ! node)
+        pathToFrom d to from =
+            let fromChildren = d ! from
+            in  member to fromChildren || any (pathToFrom d to) fromChildren
+
+graphVizzify :: Deps -> String
+graphVizzify = unlines . (["digraph G { rankdir=LR"] ++) . (++ ["}"]) . foldr1 (++) . mapWithKey (\k v -> map (((k : " -> ") ++) . pure) (toList v))
 
 part1 :: Deps -> String -> String
 part1 deps str
@@ -51,6 +78,7 @@ part2 deps workers time
 
 main :: IO ()
 main = do
-    input <- dependencies . map parse . lines <$> readFile "input/07.txt"
+    input <- transReduc . dependencies . map parse . lines <$> readFile "input/07.txt"
+    putStrLn $ graphVizzify input
     putStrLn $ part1 input ""
     print    $ part2 input (replicate 5 emptyWorker) 0
