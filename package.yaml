@@ -24,6 +24,7 @@ dependencies:
 - containers
 - text
 - extra
+- matrix
 
 library:
   source-dirs: src
