@@ -3,21 +3,37 @@ module Day11 (main) where
 import Data.Char (digitToInt)
 import Data.List (maximumBy)
 import Data.Ord (comparing)
-
-indexToCoord :: Int -> (Int, Int)
-indexToCoord i = (1 + i `div` 300, 1 + i `mod` 300)
+import Data.Tuple (swap)
+import Data.Matrix (Matrix, matrix, toLists, fromLists, getCol)
+import Data.Vector (Vector, (!))
+import qualified Data.Vector as V (scanl1, zipWith3)
 
 powerLevel :: (Int, Int) -> Int
 powerLevel (x, y) = (subtract 5) . digitToInt . (!! 2) . reverse . show $ ((x + 10) * y + 7672) * (x + 10)
 
-powerSquare :: Int -> (Int, Int) -> Int
-powerSquare size (x, y) =
-    if   x > 300 - size + 1 || y > 300 - size + 1 then -5
-    else sum [powerLevel (x', y') | x' <- [x .. x + size - 1], y' <- [y .. y + size - 1]]
+-- maxSubvectorSum :: size -> vector -> (value, y-coord)
+maxSubvectorSum :: Int -> Vector Int -> (Int, Int)
+maxSubvectorSum size v =
+    let accuml = V.scanl1 (+) v
+        summed = map (\i -> accuml ! (i + size - 1) - accuml ! i + v ! i) [0 .. 300 - size]
+        zipped = zip summed [1..]
+    in  maximumBy (comparing fst) zipped
 
-part1 :: (Int, Int)
-part1 = indexToCoord . fst . maximumBy (comparing snd) . zip [0..] . map (powerSquare 3 . indexToCoord) $ [0 .. 300 * 300]
+-- maxSubsquareSum :: grid -> grid with scanl'd rows -> (left, right) -> (subsquare sum, (x, y, size))
+maxSubsquareSum :: Matrix Int -> Matrix Int -> (Int, Int) -> (Int, (Int, Int, Int))
+maxSubsquareSum grid accRow (left, right) =
+    let vec    = V.zipWith3 (\accR accL gridL -> accR - accL + gridL) (getCol right accRow) (getCol left accRow) (getCol left grid)
+        size   = right - left + 1
+        (v, y) = maxSubvectorSum size vec
+    in  (v, (left, y, size))
+
+-- part2 :: (x, y, size)
+part2 :: (Int, Int, Int)
+part2 =
+    let grid     = matrix 300 300 (powerLevel . swap)
+        accRow   = fromLists . map (scanl1 (+)) . toLists $ grid
+        colRange = [(left, right) | left <- [1..300], right <- [left..300]] -- part1: [(left, left + 2) | left <- [1..298]]
+    in  snd . maximumBy (comparing fst) . map (maxSubsquareSum grid accRow) $ colRange
 
 main :: IO ()
-main = do
-    print part1
+main = print part2

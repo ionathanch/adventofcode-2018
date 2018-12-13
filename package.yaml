@@ -25,6 +25,7 @@ dependencies:
 - text
 - extra
 - matrix
+- vector
 
 library:
   source-dirs: src

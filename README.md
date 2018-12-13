@@ -17,8 +17,8 @@ To arrive at [⟨ortho|normal⟩](https://hilb.ert.space) as December comes.
 | 07  | ~ 1         |
 | 08  | ~ 6.5       |
 | 09  | ~ 7         |
-| 10  |             |
-| 11  |             |
+| 10  | ~ 6.5       |
+| 11  | ~ 7         |
 | 12  |             |
 | 13  |             |
 | 14  |             |
