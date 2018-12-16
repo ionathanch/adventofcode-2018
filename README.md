@@ -19,7 +19,7 @@ To arrive at [⟨ortho|normal⟩](https://hilb.ert.space) as December comes.
 | 09  | ~ 7         |
 | 10  | ~ 6.5       |
 | 11  | ~ 7         |
-| 12  |             |
+| 12  | ~ 1.5       |
 | 13  |             |
 | 14  |             |
 | 15  |             |
