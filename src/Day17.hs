@@ -1,11 +1,11 @@
-{-# LANGUAGE TupleSections, BangPatterns #-}
+{-# LANGUAGE TupleSections #-}
 
 module Day17 (main) where
 
-import Prelude hiding (lookup, filter)
+import Prelude hiding (lookup)
 import Data.Foldable (maximumBy, minimumBy)
 import Data.Ord (comparing)
-import Data.Map (Map, fromList, insert, lookup, filter, filterWithKey, keys, size)
+import Data.Map (Map, fromList, insert, lookup, filterWithKey, keys, size)
 import Debug.Trace (traceShow, traceShowId)
 
 -- Horz (left, right) y | Vert x (top, bottom)
@@ -21,12 +21,16 @@ parse str =
         range = (read $ (takeWhile (/= '.') rangeString), (read . reverse . takeWhile (/= '.') . reverse $ rangeString))
     in  if fstAxis == 'x' then Vert val range else Horz range val
 
-createGrid :: [Vein] -> (Int, Grid)
+-- returns minimum y, maximum y, and grid
+createGrid :: [Vein] -> (Int, Int, Grid)
 createGrid veins =
-    let maxY = getMaxY $ maximumBy (comparing getMaxY) veins
+    let minY = getMinY $ minimumBy (comparing getMinY) veins
+        maxY = getMaxY $ maximumBy (comparing getMaxY) veins
         grid = foldr insertVein (fromList [((500, 0), '|')]) veins
-    in  (maxY, grid)
+    in  (minY, maxY, grid)
     where
+        getMinY (Horz _ y) = y
+        getMinY (Vert _ (top, _)) = top
         getMaxY (Horz _ y) = y
         getMaxY (Vert _ (_, bottom)) = bottom   
         insertVein (Horz (left, right) y) grid = foldr (\coord g -> insert coord '#' g) grid $ map (,y) [left..right]
@@ -77,26 +81,42 @@ flood coord grid =
 
 canFlood :: Coordinate -> Grid -> Bool
 canFlood (x, y) grid =
-    (Just '|' /= lookup (x - 1, y) grid  ||
-     Just '|' /= lookup (x + 1, y) grid) &&
-    case lookup (x, y + 1) grid of
-        Just '#' -> True
-        Just '~' -> True
-        _ -> False
+    let validSides  = (lookup (x - 1, y) grid, lookup (x + 1, y) grid) `notElem` [(Just '#', Just '|'), (Just '|', Just '#'), (Just '|', Just '|')]
+        validBottom = lookup (x, y + 1) grid `elem` [Just '#', Just '~']
+    in  validSides && validBottom
 
-flowFlood :: Int -> Grid -> Grid
-flowFlood maxY grid =
-    let flowable  = keys $ filterWithKey (\k v -> v == '|' && canFlowDown maxY k grid) grid
-        flowed  = foldr (flowDown maxY) grid flowable
-        floodable = keys $ filterWithKey (\k v -> v == '|' && canFlood k flowed) flowed
-        flooded = foldr flood flowed floodable
-    in  if null flowable && null floodable then grid else flowFlood maxY flooded
+{-
+A few edge cases:
+    * Flowing water with more flowing water on one side (. | | or | | .) could flow into the gap
+        . | |      | | |
+        . # |  =>  | # |
+        . # |      | # |
+    * Flowing water surrounded by walls should become stagnant
+        # | #      # ~ #
+        # | #  =>  # ~ #
+        # # #      # # #
+    * But flowing water between a wall and more flowing water never changes
+      and neither does flowing water between more flowing water
+        # | | |
+        # # # |
+-}
 
-part1 :: Int -> Grid -> Int
-part1 maxY grid = subtract 1 . size . filter (\v -> v == '|' || v == '~') . flowFlood maxY $ grid
+floodFlow :: Int -> Grid -> Grid
+floodFlow maxY grid =
+    let floodable = keys $ filterWithKey (\k v -> v == '|' && canFlood k grid) grid
+        flooded   = foldr flood grid floodable
+        flowable  = keys $ filterWithKey (\k v -> v == '|' && canFlowDown maxY k flooded) flooded
+        flowed    = foldr (flowDown maxY) flooded flowable
+    in  if null flowable && null floodable then grid else floodFlow maxY flowed
+
+part1 :: Int -> Int -> Grid -> Int
+part1 minY maxY grid = size . filterWithKey (\(_, y) v -> y >= minY && y <= maxY && (v == '|' || v == '~')) . floodFlow maxY $ grid
+
+part2 :: Int -> Int -> Grid -> Int
+part2 minY maxY grid = size . filterWithKey (\(_, y) v -> y >= minY && y <= maxY && v == '~') . floodFlow maxY $ grid
 
 main :: IO ()
 main = do
-    (maxY, grid) <- createGrid . map parse . lines <$> readFile "input/17.txt"
-    print $ maxY
-    print $ part1 maxY grid
+    (minY, maxY, grid) <- createGrid . map parse . lines <$> readFile "input/17.txt"
+    print $ part1 minY maxY grid
+    print $ part2 minY maxY grid
