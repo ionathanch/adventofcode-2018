@@ -28,7 +28,7 @@ Now located in this repository's wiki.
 | 14  |  22.3       |
 | 15  | < 1         |
 | 16  | ~ 15        |
-| 17  |             |
+| 17  | 120         |
 | 18  |             |
 | 19  |             |
 | 20  |             |
