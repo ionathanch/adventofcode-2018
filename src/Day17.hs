@@ -6,7 +6,6 @@ import Prelude hiding (lookup)
 import Data.Foldable (maximumBy, minimumBy)
 import Data.Ord (comparing)
 import Data.Map (Map, fromList, insert, lookup, filterWithKey, keys, size)
-import Debug.Trace (traceShow, traceShowId)
 
 -- Horz (left, right) y | Vert x (top, bottom)
 data Vein = Horz (Int, Int) Int | Vert Int (Int, Int)
