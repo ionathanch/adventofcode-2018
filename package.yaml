@@ -26,6 +26,7 @@ dependencies:
 - extra
 - matrix
 - vector
+- array
 
 library:
   source-dirs: src
