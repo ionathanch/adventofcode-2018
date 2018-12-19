@@ -1,6 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 
-module Day17 (main) where
+module Day17_UArray (main) where
 
 import Prelude hiding (lookup)
 import Data.Foldable (maximumBy, minimumBy)

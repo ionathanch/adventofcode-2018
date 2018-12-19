@@ -30,7 +30,7 @@ Now located in this repository's wiki.
 | 16  | ~ 1         |
 | 17  | ~ 15        |
 | 18  | ~ 6         |
-| 19  |             |
+| 19  | ~ 3         |
 | 20  |             |
 | 21  |             |
 | 22  |             |
