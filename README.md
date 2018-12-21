@@ -31,7 +31,7 @@ Now located in this repository's wiki.
 | 17  | ~ 15        |
 | 18  | ~ 6         |
 | 19  | ~ 3         |
-| 20  |             |
+| 20  | ~ 40        |
 | 21  |             |
 | 22  |             |
 | 23  |             |

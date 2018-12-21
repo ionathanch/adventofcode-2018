@@ -27,6 +27,7 @@ dependencies:
 - matrix
 - vector
 - array
+- parsec
 
 library:
   source-dirs: src
