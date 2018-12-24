@@ -28,6 +28,7 @@ dependencies:
 - vector
 - array
 - parsec
+- sbv
 
 library:
   source-dirs: src

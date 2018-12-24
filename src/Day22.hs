@@ -5,11 +5,10 @@ import Data.Map.Strict (Map, (!), insert, member, empty)
 import Data.Set (Set, notMember)
 import qualified Data.Set as S (insert, fromList)
 import Data.Ix (range)
-import PSQueue (Binding(..), PSQ, minView, insertBindingWith, fromList)
-import Debug.Trace (traceShow)
+import PSQueue (Binding(..), PSQ, minView, insertWith, fromList, size)
 
 type ErosionLevels = Map Coordinate Int
-type Visiteds = Set Coordinate
+type Visiteds = Set Key
 type Coordinate = (Int, Int) -- (x, y)
 type Queue = PSQ Key Int
 type Key = (Coordinate, Tool)
@@ -63,18 +62,19 @@ getBinding els ((sCoord, sTool) :-> sTime) tCoord =
 
 getTargetTime :: Visiteds -> (Queue, ErosionLevels) -> Int
 getTargetTime vis (q, els) =
-    let Just (region@((coord, _) :-> time), q') = minView q
+    let Just (region@(key@(coord, _) :-> time), q') = minView q
         neighbours = getNeighbours coord
     in  if   coord == target then time
-        else getTargetTime (S.insert coord vis) $ foldl' (insertCoord region) (q', els) neighbours
+        else getTargetTime (S.insert key vis) $ foldl' (insertCoord region) (q', els) neighbours
     where
         -- source binding -> (queue, erosion levels) -> target coordinate -> (queue with target binding, updated erosion levels)
         insertCoord :: Binding Key Int -> (Queue, ErosionLevels) -> Coordinate -> (Queue, ErosionLevels)
         insertCoord region (q, els) coord =
-            let (binding, els') = getBinding els region coord
-            in  (insertBindingWith min binding q, els')
+            let (key :-> time, els') = getBinding els region coord
+                q' = if notMember key vis then insertWith min key time q else q
+            in  (q', els')
         getNeighbours :: (Int, Int) -> [(Int, Int)]
-        getNeighbours coord@(x, y) = filter (\coord@(x, y) -> x >= 0 && y >= 0 && notMember coord vis)
+        getNeighbours coord@(x, y) = filter (\coord@(x, y) -> x >= 0 && y >= 0)
             [(x - 1, y), (x, y - 1), (x + 1, y), (x, y + 1)]
 
 part1 :: Int
@@ -82,8 +82,8 @@ part1 = sum . fmap (`mod` 3) . snd . foldl' getErosionLevel (0, empty) $ range (
 
 part2 :: Int
 part2 =
-    let q = fromList $ [((0, 0), Torch) :-> 0]
-        vis = S.fromList [(0, 0)]
+    let q   = fromList $ [((0, 0), Torch) :-> 0]
+        vis = S.fromList [((0, 0), Torch)]
     in  getTargetTime vis (q, empty)
 
 main :: IO ()
