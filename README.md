@@ -36,4 +36,4 @@ Now located in this repository's wiki.
 | 22  |   23        |
 | 23  |   128       |
 | 24  | ~ 2         |
-| 25  |             |
+| 25  | ~ 1         |
