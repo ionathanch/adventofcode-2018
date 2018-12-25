@@ -1,5 +1,5 @@
 -- Some possibly-useful GHC extensions:
-{-# LANGUAGE BangPatterns, TupleSections, ScopedTypeVariables, GADTs, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE BangPatterns, ViewPatterns, TupleSections, ScopedTypeVariables, GADTs, GeneralizedNewtypeDeriving #-}
 
 module Main where
 
